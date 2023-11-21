@@ -10,6 +10,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 /**
@@ -19,7 +20,6 @@ import java.net.SocketAddress;
  * @since 2023-11-21
  **/
 public class NettyClient {
-
     private SocketAddress address;
     private final Bootstrap bootstrap = new Bootstrap();
     private Channel channel;
@@ -45,12 +45,15 @@ public class NettyClient {
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
-                        ch.pipeline().addLast("hello", new SimpleChannelInboundHandler<>() {
-                            @Override
-                            protected void channelRead0(ChannelHandlerContext ctx, Object msg) {
-                                System.out.println(msg);
-                            }
-                        });
+                        ch.pipeline()
+                                .addLast("splitter", new JyCodecSplitter())
+                                .addLast("codec", new JyCodecHandler())
+                                .addLast("handler", new SimpleChannelInboundHandler<ResponsePacket>() {
+                                    @Override
+                                    protected void channelRead0(ChannelHandlerContext ctx, ResponsePacket msg) throws Exception {
+                                        System.out.println("client received " + msg);
+                                    }
+                                });
                     }
                 });
         try {

@@ -15,6 +15,7 @@ public class JyCodec {
 
     static {
         allPacketClass.put(Command.REQUEST_COMMAND, RequestPacket.class);
+        allPacketClass.put(Command.REQUEST_RESPONSE_COMMAND, ResponsePacket.class);
     }
 
     public static ByteBuf encode(ByteBuf byteBuf, Packet packet) {
@@ -29,11 +30,8 @@ public class JyCodec {
     }
 
     public static Packet decode(ByteBuf byteBuf) {
-        int magicNum = byteBuf.readInt();
-        if (magicNum != MAGIC_NUMBER) {
-            throw new IllegalArgumentException("Wrong MAGIC_NUMBER.");
-        }
-        byteBuf.skipBytes(1); // 跳过版本号
+        byteBuf.skipBytes(4);
+        byteBuf.skipBytes(1);
         byte serializeAlgorithm = byteBuf.readByte();
         byte command = byteBuf.readByte();
         int length = byteBuf.readInt();
