@@ -10,7 +10,6 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
-import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 /**
@@ -22,6 +21,7 @@ import java.net.SocketAddress;
 public class NettyClient {
     private SocketAddress address;
     private final Bootstrap bootstrap = new Bootstrap();
+    private final PacketDispatcher dispatcher = new PacketDispatcher();
     private Channel channel;
 
     public NettyClient(SocketAddress address) {
@@ -37,6 +37,7 @@ public class NettyClient {
         if (address == null) {
             throw new RuntimeException("Unknown connection, because address is null.");
         }
+        dispatcher.register(new RpcResponseListener());
         bootstrap.group(new NioEventLoopGroup())
                 .channel(NioSocketChannel.class)
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000)
@@ -48,10 +49,10 @@ public class NettyClient {
                         ch.pipeline()
                                 .addLast("splitter", new JyCodecSplitter())
                                 .addLast("codec", new JyCodecHandler())
-                                .addLast("handler", new SimpleChannelInboundHandler<ResponsePacket>() {
+                                .addLast("handler", new SimpleChannelInboundHandler<RpcResponsePacket>() {
                                     @Override
-                                    protected void channelRead0(ChannelHandlerContext ctx, ResponsePacket msg) throws Exception {
-                                        System.out.println("client received " + msg);
+                                    protected void channelRead0(ChannelHandlerContext ctx, RpcResponsePacket msg) throws Exception {
+                                        dispatcher.dispatch(ctx, msg);
                                     }
                                 });
                     }

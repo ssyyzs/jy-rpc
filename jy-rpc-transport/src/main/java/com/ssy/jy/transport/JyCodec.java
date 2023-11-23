@@ -14,8 +14,8 @@ public class JyCodec {
     public static final Map<Byte, Class<? extends Packet>> allPacketClass = new HashMap<>();
 
     static {
-        allPacketClass.put(Command.REQUEST_COMMAND, RequestPacket.class);
-        allPacketClass.put(Command.REQUEST_RESPONSE_COMMAND, ResponsePacket.class);
+        allPacketClass.put(Command.REQUEST_COMMAND, RpcRequestPacket.class);
+        allPacketClass.put(Command.REQUEST_RESPONSE_COMMAND, RpcResponsePacket.class);
     }
 
     public static ByteBuf encode(ByteBuf byteBuf, Packet packet) {

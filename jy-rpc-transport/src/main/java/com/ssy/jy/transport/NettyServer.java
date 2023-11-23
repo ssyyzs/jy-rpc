@@ -15,11 +15,8 @@ import java.net.SocketAddress;
  * @since 2023-11-21
  **/
 public class NettyServer {
-    public static void main(String[] args) {
-        new NettyServer(new InetSocketAddress(3000)).open();
-    }
-
     private final ServerBootstrap bootstrap = new ServerBootstrap();
+    private final PacketDispatcher dispatcher = new PacketDispatcher();
     private Channel channel;
     private SocketAddress address;
 
@@ -31,6 +28,7 @@ public class NettyServer {
         if (address == null) {
             throw new RuntimeException("Unknown connection, because address is null.");
         }
+        dispatcher.register(new RpcRequestListener());
         channel = bootstrap.channel(NioServerSocketChannel.class)
                 .group(new NioEventLoopGroup(), new NioEventLoopGroup())
                 .option(ChannelOption.SO_BACKLOG, 1)
@@ -40,13 +38,10 @@ public class NettyServer {
                         ch.pipeline()
                                 .addLast("splitter", new JyCodecSplitter())
                                 .addLast("codec", new JyCodecHandler())
-                                .addLast("handler", new SimpleChannelInboundHandler<RequestPacket>() {
+                                .addLast("handler", new SimpleChannelInboundHandler<Packet>() {
                                     @Override
-                                    protected void channelRead0(ChannelHandlerContext ctx, RequestPacket msg) throws Exception {
-                                        System.out.println("server received " + msg);
-                                        ResponsePacket responsePacket = new ResponsePacket();
-                                        responsePacket.setRequestId(msg.getRequestId());
-                                        ctx.channel().writeAndFlush(responsePacket);
+                                    protected void channelRead0(ChannelHandlerContext ctx, Packet msg) throws Exception {
+                                        dispatcher.dispatch(ctx, msg);
                                     }
                                 });
                     }

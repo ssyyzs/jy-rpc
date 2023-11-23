@@ -7,8 +7,16 @@ import lombok.Data;
  * @since 2023-11-21
  **/
 @Data
-public class ResponsePacket extends Packet {
+public class RpcResponsePacket extends Packet {
     private String requestId;
+    private boolean success;
+    private Object data;
+    private String msg;
+
+    @Override
+    public String type() {
+        return RpcResponsePacket.class.getName();
+    }
 
     @Override
     public byte command() {

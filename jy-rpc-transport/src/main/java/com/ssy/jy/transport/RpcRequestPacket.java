@@ -9,11 +9,17 @@ import lombok.Data;
  * @since 2023-11-21
  **/
 @Data
-public class RequestPacket extends Packet {
+public class RpcRequestPacket extends Packet {
     private String requestId;
     private String interfaceType;
     private String method;
+    private Class[] argumentsType;
     private Object[] arguments;
+
+    @Override
+    public String type() {
+        return RpcRequestPacket.class.getName();
+    }
 
     @Override
     public byte command() {

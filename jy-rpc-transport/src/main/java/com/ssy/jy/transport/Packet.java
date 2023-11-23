@@ -10,5 +10,7 @@ import lombok.Data;
 public abstract class Packet {
     private byte version = 1;
 
+    public abstract String type();
+
     public abstract byte command();
 }
