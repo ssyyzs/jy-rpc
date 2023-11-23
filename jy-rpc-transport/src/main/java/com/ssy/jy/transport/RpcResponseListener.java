@@ -15,5 +15,6 @@ public class RpcResponseListener implements PacketListener<RpcResponsePacket> {
     @Override
     public void handle(ChannelHandlerContext ctx, RpcResponsePacket response) {
         System.out.println(response);
+        RpcRequestFactory.getRequest(response.getRequestId()).success(response.getData());
     }
 }
