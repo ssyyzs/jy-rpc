@@ -1,15 +1,11 @@
 package com.ssy.jy.transport;
 
 import io.netty.channel.Channel;
-
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
 
 /**
- *
+ * jdk代理对象.
  *
  * @author ssyyzs
  * @since 2023-11-23

@@ -3,6 +3,8 @@ package com.ssy.jy.transport;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
+ * rpc响应报文监听器，处理rpc响应报文.
+ *
  * @author ssyyzs
  * @since 2023-11-23
  **/

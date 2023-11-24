@@ -3,6 +3,8 @@ package com.ssy.jy.transport;
 import lombok.Data;
 
 /**
+ * rpc响应报文.
+ *
  * @author ssyyzs
  * @since 2023-11-21
  **/

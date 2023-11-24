@@ -27,6 +27,11 @@ public class RpcRequestPacket extends Packet {
         return Command.REQUEST_COMMAND;
     }
 
+    /**
+     * 同步获取请求结果.
+     *
+     * @return 请求结果
+     */
     public synchronized Object syncGet() {
         try {
             if (result == null) {
@@ -38,6 +43,12 @@ public class RpcRequestPacket extends Packet {
         }
     }
 
+    /**
+     * 带时间的同步获取请求结果.
+     *
+     * @param timeoutMillis 超时时间.
+     * @return 请求结果
+     */
     public synchronized Object syncGet(long timeoutMillis) {
         try {
             if (result == null) {
@@ -49,10 +60,20 @@ public class RpcRequestPacket extends Packet {
         }
     }
 
+    /**
+     * 立即获取请求结果.
+     *
+     * @return 请求结果.
+     */
     public Object getImmediately() {
         return result;
     }
 
+    /**
+     * 设置请求结果.
+     *
+     * @param result 请求执行结果
+     */
     public synchronized void success(Object result) {
         this.result = result;
         notifyAll();

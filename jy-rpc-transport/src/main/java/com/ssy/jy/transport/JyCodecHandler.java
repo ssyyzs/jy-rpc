@@ -3,7 +3,6 @@ package com.ssy.jy.transport;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageCodec;
-
 import java.util.List;
 
 /**
@@ -14,12 +13,14 @@ import java.util.List;
  **/
 public class JyCodecHandler extends MessageToMessageCodec<ByteBuf, Packet> {
     @Override
-    protected void encode(ChannelHandlerContext ctx, Packet packet, List<Object> list) throws Exception {
+    protected void encode(ChannelHandlerContext ctx, Packet packet, List<Object> list)
+            throws Exception {
         list.add(JyCodec.encode(ctx.alloc().buffer(), packet));
     }
 
     @Override
-    protected void decode(ChannelHandlerContext ctx, ByteBuf byteBuf, List<Object> list) throws Exception {
+    protected void decode(ChannelHandlerContext ctx, ByteBuf byteBuf, List<Object> list)
+            throws Exception {
         list.add(JyCodec.decode(byteBuf));
     }
 }

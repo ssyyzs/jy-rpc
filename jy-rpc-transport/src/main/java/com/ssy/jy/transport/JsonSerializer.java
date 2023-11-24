@@ -8,11 +8,11 @@ import com.alibaba.fastjson.JSON;
  * @author ssyyzs
  * @since 2023-11-21
  **/
-public class JSONSerializer implements Serializer {
+public class JsonSerializer implements Serializer {
 
-    public static final JSONSerializer INSTANCE = new JSONSerializer();
+    public static final JsonSerializer INSTANCE = new JsonSerializer();
 
-    private JSONSerializer() {
+    private JsonSerializer() {
     }
 
     @Override

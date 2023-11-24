@@ -9,7 +9,6 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-
 import java.net.SocketAddress;
 
 /**
@@ -19,7 +18,7 @@ import java.net.SocketAddress;
  * @since 2023-11-21
  **/
 public class NettyClient {
-    private SocketAddress address;
+    private final SocketAddress address;
     private final Bootstrap bootstrap = new Bootstrap();
     private final PacketDispatcher dispatcher = new PacketDispatcher();
     private Channel channel;
@@ -51,7 +50,8 @@ public class NettyClient {
                                 .addLast("codec", new JyCodecHandler())
                                 .addLast("handler", new SimpleChannelInboundHandler<RpcResponsePacket>() {
                                     @Override
-                                    protected void channelRead0(ChannelHandlerContext ctx, RpcResponsePacket msg) throws Exception {
+                                    protected void channelRead0(ChannelHandlerContext ctx, RpcResponsePacket msg)
+                                            throws Exception {
                                         dispatcher.dispatch(ctx, msg);
                                     }
                                 });

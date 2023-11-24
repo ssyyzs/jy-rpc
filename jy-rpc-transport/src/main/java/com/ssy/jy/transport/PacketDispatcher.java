@@ -1,12 +1,11 @@
 package com.ssy.jy.transport;
 
 import io.netty.channel.ChannelHandlerContext;
-
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 消息分发器.
+ * 报文分发器.
  *
  * @author ssyyzs
  * @since 2023-11-22

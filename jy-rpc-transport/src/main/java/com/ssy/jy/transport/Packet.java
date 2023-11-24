@@ -3,6 +3,8 @@ package com.ssy.jy.transport;
 import lombok.Data;
 
 /**
+ * 传输报文对象.
+ *
  * @author y30010171
  * @since 2022-08-24
  **/

@@ -1,16 +1,19 @@
 package com.ssy.jy.transport;
 
-import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-
-import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 /**
+ * netty服务端.
+ *
  * @author ssyyzs
  * @since 2023-11-21
  **/
@@ -18,12 +21,17 @@ public class NettyServer {
     private final ServerBootstrap bootstrap = new ServerBootstrap();
     private final PacketDispatcher dispatcher = new PacketDispatcher();
     private Channel channel;
-    private SocketAddress address;
+    private final SocketAddress address;
 
     public NettyServer(SocketAddress address) {
         this.address = address;
     }
 
+    /**
+     * 建立监听.
+     *
+     * @return Channel
+     */
     public Channel open() {
         if (address == null) {
             throw new RuntimeException("Unknown connection, because address is null.");
@@ -40,7 +48,8 @@ public class NettyServer {
                                 .addLast("codec", new JyCodecHandler())
                                 .addLast("handler", new SimpleChannelInboundHandler<Packet>() {
                                     @Override
-                                    protected void channelRead0(ChannelHandlerContext ctx, Packet msg) throws Exception {
+                                    protected void channelRead0(ChannelHandlerContext ctx, Packet msg)
+                                            throws Exception {
                                         dispatcher.dispatch(ctx, msg);
                                     }
                                 });

@@ -1,6 +1,8 @@
 package com.ssy.jy.transport;
 
 /**
+ * 序列化算法标识.
+ *
  * @author y30010171
  * @since 2022-08-24
  **/

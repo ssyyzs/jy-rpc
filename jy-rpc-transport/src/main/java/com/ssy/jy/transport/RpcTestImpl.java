@@ -3,6 +3,8 @@ package com.ssy.jy.transport;
 import java.util.List;
 
 /**
+ * rpc测试接口实现.
+ *
  * @author ssyyzs
  * @since 2023-11-23
  **/
