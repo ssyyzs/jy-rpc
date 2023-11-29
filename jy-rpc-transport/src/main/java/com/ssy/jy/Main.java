@@ -1,6 +1,10 @@
 package com.ssy.jy;
 
 import com.ssy.jy.log.JyLoggerFactory;
+import com.ssy.jy.proxy.JdkStubProxyFactory;
+import com.ssy.jy.proxy.StubProxyFactory;
+import com.ssy.jy.runtime.RpcClientRuntime;
+import com.ssy.jy.runtime.RpcServerRuntime;
 import com.ssy.jy.transport.*;
 import io.netty.channel.Channel;
 import org.slf4j.Logger;
@@ -16,11 +20,9 @@ public class Main {
     private static final Logger LOGGER = JyLoggerFactory.getLogger(Main.class);
     public static void main(String[] args) throws UnknownHostException {
         InetSocketAddress address = new InetSocketAddress(3000);
-        Channel serverChannel = new NettyServer(address).open();
-        LOGGER.debug("server is {}", serverChannel);
-        Channel clientChannel = new NettyClient(address).open();
-        LOGGER.debug("client is {}", clientChannel);
-        RpcTest proxy = SubProxyFactory.newInstance(RpcTest.class, clientChannel);
+        RpcServerRuntime serverRuntime = new RpcServerRuntime(address);
+        RpcClientRuntime clientRuntime = new RpcClientRuntime(address);
+        RpcTest proxy = StubProxyFactory.DEFAULT_FACTORY.getProxy(RpcTest.class, clientRuntime);
         System.out.println(proxy.testStr("Hello, ", Arrays.asList("world.")));
         System.out.println(proxy.testList("Hello, ", Arrays.asList("world.")));
     }

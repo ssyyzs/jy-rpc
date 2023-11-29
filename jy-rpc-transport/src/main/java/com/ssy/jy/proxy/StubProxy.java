@@ -1,5 +1,8 @@
-package com.ssy.jy.transport;
+package com.ssy.jy.proxy;
 
+import com.ssy.jy.runtime.RpcRuntime;
+import com.ssy.jy.transport.RpcRequestFactory;
+import com.ssy.jy.transport.RpcRequestPacket;
 import io.netty.channel.Channel;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -10,13 +13,13 @@ import java.lang.reflect.Method;
  * @author ssyyzs
  * @since 2023-11-23
  **/
-public class SubProxy implements InvocationHandler {
-    private Channel channel;
+public class StubProxy implements InvocationHandler {
+    private RpcRuntime runtime;
     private Class proxyInterface;
 
-    public SubProxy(Class proxyInterface, Channel channel) {
+    public StubProxy(Class proxyInterface, RpcRuntime runtime) {
         this.proxyInterface = proxyInterface;
-        this.channel = channel;
+        this.runtime = runtime;
     }
 
     @Override
@@ -25,7 +28,7 @@ public class SubProxy implements InvocationHandler {
             return method.invoke(this, args);
         }
         RpcRequestPacket requestPacket = RpcRequestFactory.newRpcRequest(method, args);
-        channel.writeAndFlush(requestPacket);
+        runtime.call(requestPacket);
         return requestPacket.syncGet();
     }
 }

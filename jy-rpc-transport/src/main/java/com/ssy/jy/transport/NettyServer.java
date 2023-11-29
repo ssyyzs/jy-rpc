@@ -1,5 +1,6 @@
 package com.ssy.jy.transport;
 
+import com.ssy.jy.runtime.RpcClientRuntime;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -9,6 +10,9 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.SocketAddress;
 
 /**
@@ -18,6 +22,7 @@ import java.net.SocketAddress;
  * @since 2023-11-21
  **/
 public class NettyServer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(NettyServer.class);
     private final ServerBootstrap bootstrap = new ServerBootstrap();
     private final PacketDispatcher dispatcher = new PacketDispatcher();
     private Channel channel;
@@ -33,6 +38,9 @@ public class NettyServer {
      * @return Channel
      */
     public Channel open() {
+        if (channel != null) {
+            return channel;
+        }
         if (address == null) {
             throw new RuntimeException("Unknown connection, because address is null.");
         }
@@ -58,6 +66,7 @@ public class NettyServer {
                 .childOption(ChannelOption.TCP_NODELAY, true)
                 .childOption(ChannelOption.SO_KEEPALIVE, true)
                 .bind(address).syncUninterruptibly().channel();
+        LOGGER.debug("netty server started on: {}", channel);
         return channel;
     }
 }

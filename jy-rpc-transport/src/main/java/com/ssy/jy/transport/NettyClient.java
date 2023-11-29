@@ -9,6 +9,11 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import lombok.Data;
+import lombok.Getter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.SocketAddress;
 
 /**
@@ -18,10 +23,14 @@ import java.net.SocketAddress;
  * @since 2023-11-21
  **/
 public class NettyClient {
+    private static final Logger LOGGER = LoggerFactory.getLogger(NettyClient.class);
     private final SocketAddress address;
     private final Bootstrap bootstrap = new Bootstrap();
     private final PacketDispatcher dispatcher = new PacketDispatcher();
+
+    @Getter
     private Channel channel;
+    private boolean init;
 
     public NettyClient(SocketAddress address) {
         this.address = address;
@@ -33,6 +42,9 @@ public class NettyClient {
      * @return Channel
      */
     public Channel open() {
+        if (channel != null) {
+            return channel;
+        }
         if (address == null) {
             throw new RuntimeException("Unknown connection, because address is null.");
         }
@@ -62,6 +74,7 @@ public class NettyClient {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+        LOGGER.debug("netty client started on: {}", channel);
         return channel;
     }
 }
