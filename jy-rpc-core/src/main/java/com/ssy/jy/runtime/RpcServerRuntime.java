@@ -46,9 +46,9 @@ public class RpcServerRuntime implements RpcRuntime {
                         ch.pipeline()
                                 .addLast("splitter", new JyCodecSplitter())
                                 .addLast("codec", new JyCodecHandler())
-                                .addLast("handler", new SimpleChannelInboundHandler<RpcRequestPacket>() {
+                                .addLast("handler", new SimpleChannelInboundHandler<Packet>() {
                                     @Override
-                                    protected void channelRead0(ChannelHandlerContext ctx, RpcRequestPacket msg) throws Exception {
+                                    protected void channelRead0(ChannelHandlerContext ctx, Packet msg) throws Exception {
                                         dispatcher.dispatch(ctx, msg);
                                     }
                                 });

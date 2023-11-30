@@ -1,6 +1,7 @@
 package com.ssy.jy.runtime;
 
 import com.ssy.jy.runtime.transport.*;
+import com.ssy.jy.serial.Serializer;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -24,12 +25,14 @@ public class RpcClientRuntime implements RpcRuntime {
     private final SocketAddress address;
     private final Bootstrap bootstrap = new Bootstrap();
     private final PacketDispatcher dispatcher = new PacketDispatcher();
+    private byte serializerType;
 
     @Getter
     private Channel clientChannel;
 
     public RpcClientRuntime(SocketAddress address) {
         this.address = address;
+        this.serializerType = Serializer.DEFAULT.type();
         dispatcher.register(new RpcResponseListener());
         init();
     }
@@ -49,9 +52,9 @@ public class RpcClientRuntime implements RpcRuntime {
                         ch.pipeline()
                                 .addLast("splitter", new JyCodecSplitter())
                                 .addLast("codec", new JyCodecHandler())
-                                .addLast("handler", new SimpleChannelInboundHandler<RpcResponsePacket>() {
+                                .addLast("handler", new SimpleChannelInboundHandler<Packet>() {
                                     @Override
-                                    protected void channelRead0(ChannelHandlerContext ctx, RpcResponsePacket msg) throws Exception {
+                                    protected void channelRead0(ChannelHandlerContext ctx, Packet msg) throws Exception {
                                         dispatcher.dispatch(ctx, msg);
                                     }
                                 });
@@ -63,10 +66,9 @@ public class RpcClientRuntime implements RpcRuntime {
 
     @Override
     public JyFuture call(Method method, Object[] args) {
-        RpcRequestPacket requestPacket = RpcRequestFactory.newRpcRequest(method, args);
-        JyFuture jyFuture = new JyFuture(requestPacket.getRequestId());
-        RpcRequestFactory.register(jyFuture);
-        clientChannel.writeAndFlush(requestPacket);
-        return jyFuture;
+        JyFuture future = RpcRequestGenerator.newRpcRequest(method, args);
+        future.getPacket().setSerializerType(serializerType);
+        clientChannel.writeAndFlush(future.getPacket());
+        return future;
     }
 }

@@ -1,5 +1,6 @@
 package com.ssy.jy.runtime.transport;
 
+import com.ssy.jy.runtime.RpcRequestGenerator;
 import io.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,10 @@ public class RpcResponseListener implements PacketListener<RpcResponsePacket> {
     @Override
     public void handle(ChannelHandlerContext ctx, RpcResponsePacket response) {
         LOGGER.debug("received response {}.", response);
-        RpcRequestFactory.getJyFuture(response.getRequestId()).success(response.getData());
+        if (response.isSuccess()) {
+            RpcRequestGenerator.success(response.getRequestId(), response.getData());
+        } else {
+            RpcRequestGenerator.failed(response.getRequestId(), response.getErrorInfo());
+        }
     }
 }

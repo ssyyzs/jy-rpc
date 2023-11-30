@@ -15,7 +15,7 @@ public interface Serializer {
      *
      * @return 算法标识.
      */
-    byte getSerializerAlgorithm();
+    byte type();
 
     /**
      * java 对象转换成二进制字节

@@ -1,5 +1,6 @@
 package com.ssy.jy.runtime.transport;
 
+import com.ssy.jy.serial.Serializer;
 import lombok.Data;
 
 /**
@@ -11,6 +12,7 @@ import lombok.Data;
 @Data
 public abstract class Packet {
     private byte version = 1;
+    private byte serializerType = Serializer.DEFAULT.type();
 
     public abstract String type();
 

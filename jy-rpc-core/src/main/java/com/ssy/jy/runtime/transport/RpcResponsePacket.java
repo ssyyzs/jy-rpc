@@ -13,7 +13,7 @@ public class RpcResponsePacket extends Packet {
     private String requestId;
     private boolean success;
     private Object data;
-    private String msg;
+    private String errorInfo;
 
     @Override
     public String type() {

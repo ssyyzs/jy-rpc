@@ -1,5 +1,6 @@
 package com.ssy.jy.runtime;
 
+import com.ssy.jy.runtime.transport.Packet;
 import lombok.Getter;
 
 /**
@@ -12,10 +13,17 @@ public class JyFuture {
 
     @Getter
     private String requestId;
-    private Object result;
+    private volatile Object result;
 
-    public JyFuture(String requestId) {
+    @Getter
+    private volatile boolean success;
+    private volatile String errorInfo;
+    @Getter
+    private Packet packet;
+
+    public JyFuture(String requestId, Packet packet) {
         this.requestId = requestId;
+        this.packet = packet;
     }
 
     /**
@@ -66,7 +74,13 @@ public class JyFuture {
      * @param result 请求执行结果
      */
     public synchronized void success(Object result) {
+        this.success = true;
         this.result = result;
+        notifyAll();
+    }
+
+    public synchronized void failed(String msg) {
+        this.errorInfo = msg;
         notifyAll();
     }
 }

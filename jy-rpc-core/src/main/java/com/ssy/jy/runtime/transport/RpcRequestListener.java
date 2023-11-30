@@ -46,10 +46,10 @@ public class RpcRequestListener implements PacketListener<RpcRequestPacket> {
             response.setData(result);
         } catch (ClassNotFoundException | NoSuchMethodException e) {
             LOGGER.error("interfaceType or method not existed. ", e);
-            response.setMsg("interfaceType or method not existed.");
+            response.setErrorInfo("interfaceType or method not existed.");
         } catch (RpcException e) {
             LOGGER.error("call method error. requestId: {}", request.getRequestId(), e);
-            response.setMsg("invalid method. " + e.getMessage());
+            response.setErrorInfo("invalid method. " + e.getMessage());
         } finally {
             ctx.channel().writeAndFlush(response);
         }

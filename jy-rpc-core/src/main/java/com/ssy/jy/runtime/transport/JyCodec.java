@@ -1,8 +1,11 @@
 package com.ssy.jy.runtime.transport;
 
+import com.ssy.jy.exception.RpcException;
 import com.ssy.jy.serial.JsonSerializer;
 import com.ssy.jy.serial.Serializer;
 import io.netty.buffer.ByteBuf;
+
+import java.nio.file.LinkOption;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,7 +41,7 @@ public class JyCodec {
         byte[] bytes = Serializer.DEFAULT.serialize(packet);
         byteBuf.writeInt(MAGIC_NUMBER);
         byteBuf.writeByte(packet.getVersion());
-        byteBuf.writeByte(Serializer.DEFAULT.getSerializerAlgorithm());
+        byteBuf.writeByte(packet.getSerializerType());
         byteBuf.writeByte(packet.command());
         byteBuf.writeInt(bytes.length);
         byteBuf.writeBytes(bytes);
@@ -75,6 +78,6 @@ public class JyCodec {
         if (algorithm == Serializer.JSON_ALGORITHM) {
             return JsonSerializer.INSTANCE;
         }
-        return null;
+        throw new RpcException("Invalid serializer algorithm " + algorithm);
     }
 }
