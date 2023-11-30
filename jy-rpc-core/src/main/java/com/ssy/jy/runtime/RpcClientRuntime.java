@@ -20,7 +20,7 @@ import java.net.SocketAddress;
  * @author ssyyzs
  * @since 2023-11-29
  */
-public class RpcClientRuntime implements RpcRuntime {
+public class RpcClientRuntime implements RpcRuntime, PacketListener<RpcResponsePacket> {
     private static final Logger LOGGER = LoggerFactory.getLogger(RpcClientRuntime.class);
     private final SocketAddress address;
     private final Bootstrap bootstrap = new Bootstrap();
@@ -33,7 +33,7 @@ public class RpcClientRuntime implements RpcRuntime {
     public RpcClientRuntime(SocketAddress address) {
         this.address = address;
         this.serializerType = Serializer.DEFAULT.type();
-        dispatcher.register(new RpcResponseListener());
+        dispatcher.register(this);
         init();
     }
 
@@ -70,5 +70,20 @@ public class RpcClientRuntime implements RpcRuntime {
         future.getPacket().setSerializerType(serializerType);
         clientChannel.writeAndFlush(future.getPacket());
         return future;
+    }
+
+    @Override
+    public Class<RpcResponsePacket> interest() {
+        return RpcResponsePacket.class;
+    }
+
+    @Override
+    public void handle(ChannelHandlerContext ctx, RpcResponsePacket response) {
+        LOGGER.debug("received response {}.", response);
+        if (response.isSuccess()) {
+            RpcRequestGenerator.success(response.getRequestId(), response.getData());
+        } else {
+            RpcRequestGenerator.failed(response.getRequestId(), response.getErrorInfo());
+        }
     }
 }

@@ -1,6 +1,11 @@
 package com.ssy.jy.runtime;
 
+import com.ssy.jy.biz.RpcTest;
+import com.ssy.jy.biz.RpcTestImpl;
+import com.ssy.jy.exception.RpcException;
 import com.ssy.jy.runtime.transport.*;
+import com.ssy.jy.stub.ServerStub;
+import com.ssy.jy.stub.Stub;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -12,6 +17,8 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * created by idea.
@@ -19,8 +26,15 @@ import java.net.SocketAddress;
  * @author ssyyzs
  * @since 2023-11-29
  */
-public class RpcServerRuntime implements RpcRuntime {
+public class RpcServerRuntime implements RpcRuntime, PacketListener<RpcRequestPacket> {
     private static final Logger LOGGER = LoggerFactory.getLogger(RpcServerRuntime.class);
+
+    Map<Class, Stub> interfaceImplMap = new HashMap<>();
+
+    {
+        Stub serverStub = new ServerStub(RpcTest.class, new RpcTestImpl());
+        interfaceImplMap.put(serverStub.type(), serverStub);
+    }
     private final ServerBootstrap bootstrap = new ServerBootstrap();
     private final PacketDispatcher dispatcher = new PacketDispatcher();
     private Channel serverChannel;
@@ -28,7 +42,7 @@ public class RpcServerRuntime implements RpcRuntime {
 
     public RpcServerRuntime(InetSocketAddress address) {
         this.address = address;
-        dispatcher.register(new RpcRequestListener());
+        dispatcher.register(this);
         init();
     }
 
@@ -36,7 +50,6 @@ public class RpcServerRuntime implements RpcRuntime {
         if (address == null) {
             throw new RuntimeException("Unknown connection, because address is null.");
         }
-        dispatcher.register(new RpcRequestListener());
         serverChannel = bootstrap.channel(NioServerSocketChannel.class)
                 .group(new NioEventLoopGroup(), new NioEventLoopGroup())
                 .option(ChannelOption.SO_BACKLOG, 1)
@@ -63,5 +76,32 @@ public class RpcServerRuntime implements RpcRuntime {
     @Override
     public JyFuture call(Method method, Object[] args) {
         throw new RuntimeException("server runtime is not supported.");
+    }
+
+    @Override
+    public Class<RpcRequestPacket> interest() {
+        return RpcRequestPacket.class;
+    }
+
+    @Override
+    public void handle(ChannelHandlerContext ctx, RpcRequestPacket request) {
+        RpcResponsePacket response = new RpcResponsePacket();
+        response.setRequestId(request.getRequestId());
+        try {
+            Class<?> targetClass = Class.forName(request.getInterfaceType());
+            Stub stub = interfaceImplMap.get(targetClass);
+            Method targetMethod = targetClass.getDeclaredMethod(request.getMethod(), request.getArgumentsType());
+            Object result = stub.call(targetMethod, request.getArguments());
+            response.setSuccess(true);
+            response.setData(result);
+        } catch (ClassNotFoundException | NoSuchMethodException e) {
+            LOGGER.error("interfaceType or method not existed. ", e);
+            response.setErrorInfo("interfaceType or method not existed.");
+        } catch (RpcException e) {
+            LOGGER.error("call method error. requestId: {}", request.getRequestId(), e);
+            response.setErrorInfo(e.getMessage());
+        } finally {
+            ctx.channel().writeAndFlush(response);
+        }
     }
 }

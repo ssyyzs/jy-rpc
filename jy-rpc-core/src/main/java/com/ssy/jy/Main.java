@@ -18,8 +18,8 @@ public class Main {
         RpcServerRuntime serverRuntime = new RpcServerRuntime(address);
         RpcClientRuntime clientRuntime = new RpcClientRuntime(address);
         RpcTest proxy = StubFactory.DEFAULT_FACTORY.getStub(RpcTest.class, clientRuntime);
-        System.out.println(proxy.testStr("Hello, ", Arrays.asList("JY-RPC.")));
-        System.out.println(proxy.testList("Hello, ", Arrays.asList("JY-RPC.")));
-        System.out.println(proxy.testError("Hello, ", "JY-RPC."));
+        System.out.println(proxy.testStr("Hello, ", Arrays.asList("jy-rpc.")));
+        System.out.println(proxy.testList("Hello, ", Arrays.asList("jy-rpc.")));
+        System.out.println(proxy.testError("Hello, ", "jy-rpc."));
     }
 }
