@@ -17,6 +17,7 @@ public class JyFuture {
 
     @Getter
     private volatile boolean success;
+    @Getter
     private volatile String errorInfo;
     @Getter
     private Packet packet;

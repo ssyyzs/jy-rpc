@@ -49,7 +49,7 @@ public class RpcRequestListener implements PacketListener<RpcRequestPacket> {
             response.setErrorInfo("interfaceType or method not existed.");
         } catch (RpcException e) {
             LOGGER.error("call method error. requestId: {}", request.getRequestId(), e);
-            response.setErrorInfo("invalid method. " + e.getMessage());
+            response.setErrorInfo(e.getMessage());
         } finally {
             ctx.channel().writeAndFlush(response);
         }

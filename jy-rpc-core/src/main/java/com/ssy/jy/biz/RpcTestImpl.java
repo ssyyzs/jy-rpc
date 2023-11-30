@@ -23,4 +23,10 @@ public class RpcTestImpl implements RpcTest {
         list.add(0, str);
         return list;
     }
+
+    @Override
+    public String testError(String str1, String str2) {
+        int a = 1 / 0;
+        return str1 + str2;
+    }
 }

@@ -34,7 +34,7 @@ public class ServerStub implements Stub {
         } catch (IllegalAccessException e) {
             throw new RpcException("method should be public.");
         } catch (InvocationTargetException e) {
-            throw new RpcException(e);
+            throw new RpcException(e.getCause());
         }
     }
 }

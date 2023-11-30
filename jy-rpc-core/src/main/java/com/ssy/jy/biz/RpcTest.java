@@ -13,4 +13,6 @@ public interface RpcTest {
     String testStr(String str, List<String> list);
 
     List<String> testList(String str, List<String> list);
+
+    String testError(String str1, String str2);
 }
