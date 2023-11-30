@@ -1,8 +1,8 @@
 package com.ssy.jy.runtime.transport;
 
-import com.ssy.jy.log.JyLoggerFactory;
 import io.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * rpc响应报文监听器，处理rpc响应报文.
@@ -11,7 +11,7 @@ import org.slf4j.Logger;
  * @since 2023-11-23
  **/
 public class RpcResponseListener implements PacketListener<RpcResponsePacket> {
-    private static final Logger LOGGER = JyLoggerFactory.getLogger(RpcResponseListener.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RpcResponseListener.class);
 
     @Override
     public Class<RpcResponsePacket> interest() {

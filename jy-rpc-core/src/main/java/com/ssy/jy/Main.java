@@ -1,18 +1,18 @@
 package com.ssy.jy;
 
 import com.ssy.jy.biz.RpcTest;
-import com.ssy.jy.log.JyLoggerFactory;
 import com.ssy.jy.stub.StubFactory;
 import com.ssy.jy.runtime.RpcClientRuntime;
 import com.ssy.jy.runtime.RpcServerRuntime;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 
 public class Main {
-    private static final Logger LOGGER = JyLoggerFactory.getLogger(Main.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
     public static void main(String[] args) throws UnknownHostException {
         InetSocketAddress address = new InetSocketAddress(3000);
         RpcServerRuntime serverRuntime = new RpcServerRuntime(address);
