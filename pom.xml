@@ -10,7 +10,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>jy-rpc-client</module>
-        <module>jy-rpc-transport</module>
+        <module>jy-rpc-core</module>
     </modules>
 
     <properties>
