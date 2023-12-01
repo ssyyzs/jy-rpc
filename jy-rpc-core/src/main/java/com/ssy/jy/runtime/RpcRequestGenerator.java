@@ -45,7 +45,7 @@ public class RpcRequestGenerator {
     }
 
     public static void success(String requestId, Object result) {
-        JyFuture jyFuture = requestMap.get(requestId);
+        JyFuture jyFuture = requestMap.remove(requestId);
         if (jyFuture == null) {
             throw new RpcException("not existed request " + requestId);
         }
@@ -53,7 +53,7 @@ public class RpcRequestGenerator {
     }
 
     public static void failed(String requestId, String msg) {
-        JyFuture jyFuture = requestMap.get(requestId);
+        JyFuture jyFuture = requestMap.remove(requestId);
         if (jyFuture == null) {
             throw new RpcException("not existed request " + requestId);
         }

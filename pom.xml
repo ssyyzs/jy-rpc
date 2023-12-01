@@ -11,6 +11,7 @@
     <modules>
         <module>jy-rpc-client</module>
         <module>jy-rpc-core</module>
+        <module>jy-rpc-example</module>
     </modules>
 
     <properties>

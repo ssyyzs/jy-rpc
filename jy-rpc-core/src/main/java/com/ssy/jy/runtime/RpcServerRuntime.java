@@ -1,7 +1,5 @@
 package com.ssy.jy.runtime;
 
-import com.ssy.jy.biz.RpcTest;
-import com.ssy.jy.biz.RpcTestImpl;
 import com.ssy.jy.exception.RpcException;
 import com.ssy.jy.runtime.transport.*;
 import com.ssy.jy.stub.ServerStub;
@@ -29,12 +27,8 @@ import java.util.Map;
 public class RpcServerRuntime implements RpcRuntime, PacketListener<RpcRequestPacket> {
     private static final Logger LOGGER = LoggerFactory.getLogger(RpcServerRuntime.class);
 
-    Map<Class, Stub> interfaceImplMap = new HashMap<>();
+    private Map<Class, Stub> interfaceImplMap = new HashMap<>();
 
-    {
-        Stub serverStub = new ServerStub(RpcTest.class, new RpcTestImpl());
-        interfaceImplMap.put(serverStub.type(), serverStub);
-    }
     private final ServerBootstrap bootstrap = new ServerBootstrap();
     private final PacketDispatcher dispatcher = new PacketDispatcher();
     private Channel serverChannel;
@@ -70,7 +64,7 @@ public class RpcServerRuntime implements RpcRuntime, PacketListener<RpcRequestPa
                 .childOption(ChannelOption.TCP_NODELAY, true)
                 .childOption(ChannelOption.SO_KEEPALIVE, true)
                 .bind(address).syncUninterruptibly().channel();
-        LOGGER.debug("netty server started on: {}", serverChannel);
+        LOGGER.info("netty server runtime started on: {}", serverChannel);
     }
 
     @Override
@@ -103,5 +97,10 @@ public class RpcServerRuntime implements RpcRuntime, PacketListener<RpcRequestPa
         } finally {
             ctx.channel().writeAndFlush(response);
         }
+    }
+
+    public void registerService(Class clazz, Object o) {
+        Stub serverStub = new ServerStub(clazz, o);
+        interfaceImplMap.put(serverStub.type(), serverStub);
     }
 }

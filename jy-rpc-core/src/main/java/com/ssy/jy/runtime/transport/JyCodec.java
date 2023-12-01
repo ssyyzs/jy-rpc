@@ -55,7 +55,10 @@ public class JyCodec {
      * @return 解析后的报文
      */
     public static Packet decode(ByteBuf byteBuf) {
-        byteBuf.skipBytes(4);
+        int magic = byteBuf.readInt();
+        if (magic != MAGIC_NUMBER) {
+            throw new RpcException("invalid packet.");
+        }
         byteBuf.skipBytes(1);
         byte serializeAlgorithm = byteBuf.readByte();
         byte command = byteBuf.readByte();
