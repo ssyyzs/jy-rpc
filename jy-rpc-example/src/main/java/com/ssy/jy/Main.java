@@ -23,7 +23,7 @@ public class Main {
         }
         int port = 3000;
         if (args.length > 1) {
-            port = Integer.valueOf(args[1]);
+            port = Integer.parseInt(args[1]);
         }
         String hostName = "localhost";
         if (args.length > 2) {
@@ -31,11 +31,11 @@ public class Main {
         }
         int threadSize = 8;
         if (args.length > 3) {
-            threadSize = Integer.valueOf(args[3]);
+            threadSize = Integer.parseInt(args[3]);
         }
         final int requestPerSecond;
         if (args.length > 4) {
-            requestPerSecond = Integer.valueOf(args[4]);
+            requestPerSecond = Integer.parseInt(args[4]);
         } else {
             requestPerSecond = 10000;
         }
