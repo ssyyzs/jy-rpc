@@ -75,7 +75,7 @@ public class RpcClientRuntime implements RpcRuntime, PacketListener<RpcResponseP
 
     @Override
     public JyFuture call(Method method, Object[] args) {
-        JyFuture future = RpcRequestGenerator.newRpcRequest(method, args);
+        JyFuture future = RpcRequestManagement.newRpcRequest(method, args);
         future.getPacket().setSerializerType(serializerType);
         clientChannel.writeAndFlush(future.getPacket());
         return future;
@@ -90,9 +90,9 @@ public class RpcClientRuntime implements RpcRuntime, PacketListener<RpcResponseP
     public void handle(ChannelHandlerContext ctx, RpcResponsePacket response) {
         LOGGER.debug("received response {}.", response);
         if (response.isSuccess()) {
-            RpcRequestGenerator.success(response.getRequestId(), response.getData());
+            RpcRequestManagement.success(response.getRequestId(), response.getData());
         } else {
-            RpcRequestGenerator.failed(response.getRequestId(), response.getErrorInfo());
+            RpcRequestManagement.failed(response.getRequestId(), response.getErrorInfo());
         }
     }
 }

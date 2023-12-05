@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author ssyyzs
  * @since 2023-11-23
  **/
-public class RpcRequestGenerator {
+public class RpcRequestManagement {
     private static final Map<String, JyFuture> requestMap = new ConcurrentHashMap<>();
 
     public static JyFuture register(JyFuture future) {
