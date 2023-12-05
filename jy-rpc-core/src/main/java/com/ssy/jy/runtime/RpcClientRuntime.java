@@ -2,6 +2,7 @@ package com.ssy.jy.runtime;
 
 import com.ssy.jy.runtime.transport.*;
 import com.ssy.jy.serial.Serializer;
+import com.ssy.jy.stub.Stub;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -13,6 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 import java.net.SocketAddress;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * created by idea.
@@ -26,6 +29,7 @@ public class RpcClientRuntime implements RpcRuntime, PacketListener<RpcResponseP
     private final Bootstrap bootstrap = new Bootstrap();
     private final PacketDispatcher dispatcher = new PacketDispatcher();
     private byte serializerType;
+    private Map<Class, Stub> stubMap = new HashMap<>();
 
     @Getter
     private Channel clientChannel;
@@ -62,6 +66,11 @@ public class RpcClientRuntime implements RpcRuntime, PacketListener<RpcResponseP
                 });
         clientChannel = bootstrap.connect(address).syncUninterruptibly().channel();
         LOGGER.info("netty client runtime started on: {}", clientChannel);
+    }
+
+    @Override
+    public void register(Stub stub) {
+        stubMap.put(stub.type(), stub);
     }
 
     @Override

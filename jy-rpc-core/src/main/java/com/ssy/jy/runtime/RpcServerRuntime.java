@@ -27,7 +27,7 @@ import java.util.Map;
 public class RpcServerRuntime implements RpcRuntime, PacketListener<RpcRequestPacket> {
     private static final Logger LOGGER = LoggerFactory.getLogger(RpcServerRuntime.class);
 
-    private Map<Class, Stub> interfaceImplMap = new HashMap<>();
+    private Map<Class, Stub> stubMap = new HashMap<>();
 
     private final ServerBootstrap bootstrap = new ServerBootstrap();
     private final PacketDispatcher dispatcher = new PacketDispatcher();
@@ -68,6 +68,11 @@ public class RpcServerRuntime implements RpcRuntime, PacketListener<RpcRequestPa
     }
 
     @Override
+    public void register(Stub stub) {
+        stubMap.put(stub.type(), stub);
+    }
+
+    @Override
     public JyFuture call(Method method, Object[] args) {
         throw new RuntimeException("server runtime is not supported.");
     }
@@ -83,7 +88,7 @@ public class RpcServerRuntime implements RpcRuntime, PacketListener<RpcRequestPa
         response.setRequestId(request.getRequestId());
         try {
             Class<?> targetClass = Class.forName(request.getInterfaceType());
-            Stub stub = interfaceImplMap.get(targetClass);
+            Stub stub = stubMap.get(targetClass);
             Method targetMethod = targetClass.getDeclaredMethod(request.getMethod(), request.getArgumentsType());
             Object result = stub.call(targetMethod, request.getArguments());
             response.setSuccess(true);
@@ -99,8 +104,9 @@ public class RpcServerRuntime implements RpcRuntime, PacketListener<RpcRequestPa
         }
     }
 
-    public void registerService(Class clazz, Object o) {
-        Stub serverStub = new ServerStub(clazz, o);
-        interfaceImplMap.put(serverStub.type(), serverStub);
+    public void registerService(Class clazz, Object ref) {
+        Stub serverStub = new ServerStub(clazz, this);
+        serverStub.setRef(ref);
+        stubMap.put(serverStub.type(), serverStub);
     }
 }

@@ -14,5 +14,5 @@ import java.util.Map;
 public class RuntimeConfig {
     private String hostName = "localhost";
     private int port;
-    private Map<String, String> services;
+    private StubConfig stub;
 }

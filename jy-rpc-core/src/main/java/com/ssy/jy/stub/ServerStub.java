@@ -1,6 +1,7 @@
 package com.ssy.jy.stub;
 
 import com.ssy.jy.exception.RpcException;
+import com.ssy.jy.runtime.RpcRuntime;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -14,12 +15,34 @@ import java.lang.reflect.Method;
 public class ServerStub implements Stub {
 
     private Class interfaceType;
+    private RpcRuntime runtime;
 
-    private Object object;
+    private Object ref;
 
-    public ServerStub(Class interfaceType, Object object) {
+    public ServerStub(Class interfaceType, RpcRuntime runtime) {
         this.interfaceType = interfaceType;
-        this.object = object;
+        this.runtime = runtime;
+        runtime.register(this);
+    }
+
+    @Override
+    public void setRuntime(RpcRuntime runtime) {
+        this.runtime = runtime;
+    }
+
+    @Override
+    public RpcRuntime getRuntime() {
+        return this.runtime;
+    }
+
+    @Override
+    public Object getRef() {
+        return this.ref;
+    }
+
+    @Override
+    public void setRef(Object ref) {
+        this.ref = ref;
     }
 
     @Override
@@ -30,7 +53,7 @@ public class ServerStub implements Stub {
     @Override
     public Object call(Method method, Object[] args) throws RpcException {
         try {
-            return method.invoke(object, args);
+            return method.invoke(ref, args);
         } catch (IllegalAccessException e) {
             throw new RpcException("method should be public.");
         } catch (InvocationTargetException e) {

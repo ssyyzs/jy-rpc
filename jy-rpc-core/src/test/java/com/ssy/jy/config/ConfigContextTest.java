@@ -10,6 +10,6 @@ class ConfigContextTest {
 
     @Test
     void parse() throws FileNotFoundException {
-        ConfigContext parse = ConfigContext.parse("D:\\IdeaProjects\\jy-rpc\\jy-rpc-core\\src\\main\\resources\\jy.yaml");
+        ConfigContext parse = ConfigContext.parse(Thread.currentThread().getContextClassLoader().getResourceAsStream("jy.yaml"));
     }
 }

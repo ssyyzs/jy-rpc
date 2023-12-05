@@ -11,6 +11,7 @@ import org.yaml.snakeyaml.nodes.Tag;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Properties;
 
@@ -22,15 +23,13 @@ import java.util.Properties;
  */
 @Data
 public class ConfigContext {
-    private StubConfig stub;
     private RuntimeConfig client;
     private RuntimeConfig server;
 
-    public static ConfigContext parse(String configFileName) throws FileNotFoundException {
+    public static ConfigContext parse(InputStream inputStream) {
         LoaderOptions loaderOptions = new LoaderOptions();
         loaderOptions.setTagInspector((tag) ->  (ConfigContext.class.getName()).equals(tag.getClassName()));
-        ConfigContext configContext = new Yaml(new Constructor(ConfigContext.class, loaderOptions)).load(new FileInputStream(configFileName));
-        System.out.println(configContext);
+        ConfigContext configContext = new Yaml(new Constructor(ConfigContext.class, loaderOptions)).load(inputStream);
         return configContext;
     }
 }

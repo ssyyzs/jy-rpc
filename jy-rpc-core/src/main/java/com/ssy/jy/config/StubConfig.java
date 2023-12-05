@@ -3,6 +3,7 @@ package com.ssy.jy.config;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * created by idea.
@@ -12,5 +13,5 @@ import java.util.List;
  */
 @Data
 public class StubConfig {
-    List<String> interfaces;
+    private Map<String, String> services;
 }

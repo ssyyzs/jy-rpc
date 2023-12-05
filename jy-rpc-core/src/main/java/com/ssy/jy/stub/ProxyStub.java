@@ -20,15 +20,19 @@ public class ProxyStub implements InvocationHandler, Stub {
     private RpcRuntime runtime;
     private Class proxyInterface;
 
+    private Object ref;
+
     public ProxyStub(Class proxyInterface, RpcRuntime runtime) {
         this.proxyInterface = proxyInterface;
         this.runtime = runtime;
+        runtime.register(this);
+        this.ref = this;
     }
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         if (Object.class.equals(method.getDeclaringClass())) {
-            return method.invoke(this, args);
+            return method.invoke(ref, args);
         }
         JyFuture future = runtime.call(method, args);
         Object result = future.syncGet();
@@ -36,6 +40,26 @@ public class ProxyStub implements InvocationHandler, Stub {
             return result;
         }
         throw new RpcException(future.getErrorInfo());
+    }
+
+    @Override
+    public void setRuntime(RpcRuntime runtime) {
+        this.runtime = runtime;
+    }
+
+    @Override
+    public RpcRuntime getRuntime() {
+        return this.runtime;
+    }
+
+    @Override
+    public Object getRef() {
+        return this.ref;
+    }
+
+    @Override
+    public void setRef(Object ref) {
+        this.ref = ref;
     }
 
     @Override
