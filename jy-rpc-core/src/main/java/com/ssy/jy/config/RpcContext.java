@@ -16,6 +16,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * created by idea.
@@ -24,8 +25,8 @@ import java.util.Map;
  * @since 2023-12-05
  */
 public class RpcContext {
-    private Map<String, Object> referenceSub = new HashMap<>();
-    private Map<String, Object> serviceSub = new HashMap<>();
+    private Map<Class, Supplier> referenceFactory = new HashMap<>();
+    private Map<Class, Supplier> serviceFactory = new HashMap<>();
     @Getter
     private ConfigContext configContext;
     private String configFileName = "jy.yaml";
@@ -55,13 +56,14 @@ public class RpcContext {
                 Class interfaceType = Class.forName(entry.getKey());
                 String implType = entry.getValue();
                 if ("proxy".equals(implType)) {
-                    referenceSub.put(entry.getKey(), JdkProxyStubFactory.DEFAULT_FACTORY.getStub(interfaceType, runtime));
+                    Supplier supplier = () -> JdkProxyStubFactory.DEFAULT_FACTORY.getStub(interfaceType, runtime);
+                    referenceFactory.put(interfaceType, cacheableWrapper(supplier));
                 } else {
                     Class implClassType = Class.forName(implType);
                     Object ref = implClassType.getConstructors()[0].newInstance();
                     Stub serverStub = new ServerStub(interfaceType, runtime);
                     serverStub.setRef(ref);
-                    serviceSub.put(entry.getKey(), ref);
+                    serviceFactory.put(interfaceType, cacheableWrapper(() -> ref));
                 }
             }
         } catch (ClassNotFoundException e) {
@@ -87,10 +89,28 @@ public class RpcContext {
     }
 
     public <T> T getReference(Class<T> clazz) {
-        return (T) referenceSub.get(clazz.getName());
+        return (T) referenceFactory.get(clazz).get();
     }
 
     public <T> T getService(Class<T> clazz) {
-        return (T) serviceSub.get(clazz.getName());
+        return (T) serviceFactory.get(clazz).get();
+    }
+
+    public <T> Supplier<T> cacheableWrapper(Supplier<T> supplier) {
+        return new Supplier<>() {
+            private volatile T ref;
+
+            @Override
+            public T get() {
+                if (ref == null) {
+                    synchronized (this) {
+                        if (ref == null) {
+                            ref = supplier.get();
+                        }
+                    }
+                }
+                return ref;
+            }
+        };
     }
 }

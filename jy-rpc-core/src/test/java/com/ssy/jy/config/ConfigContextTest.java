@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class ConfigContextTest {
 
     @Test
-    void parse() throws FileNotFoundException {
+    void parse() {
         ConfigContext parse = ConfigContext.parse(Thread.currentThread().getContextClassLoader().getResourceAsStream("jy.yaml"));
     }
 }
