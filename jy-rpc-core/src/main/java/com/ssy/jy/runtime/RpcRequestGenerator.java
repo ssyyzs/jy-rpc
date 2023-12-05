@@ -21,10 +21,6 @@ public class RpcRequestGenerator {
         return requestMap.putIfAbsent(future.getRequestId(), future);
     }
 
-    public static JyFuture getJyFuture(String requestId) {
-        return requestMap.get(requestId);
-    }
-
     /**
      * 获取一个新的rpc请求，并记录.
      *

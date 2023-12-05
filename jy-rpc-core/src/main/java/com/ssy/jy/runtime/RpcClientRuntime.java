@@ -29,7 +29,7 @@ public class RpcClientRuntime implements RpcRuntime, PacketListener<RpcResponseP
     private final Bootstrap bootstrap = new Bootstrap();
     private final PacketDispatcher dispatcher = new PacketDispatcher();
     private byte serializerType;
-    private Map<Class, Stub> stubMap = new HashMap<>();
+    private final Map<Class<?>, Stub> stubMap = new HashMap<>();
 
     @Getter
     private Channel clientChannel;
@@ -52,13 +52,13 @@ public class RpcClientRuntime implements RpcRuntime, PacketListener<RpcResponseP
                 .option(ChannelOption.TCP_NODELAY, true)
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
-                    protected void initChannel(SocketChannel ch) throws Exception {
+                    protected void initChannel(SocketChannel ch) {
                         ch.pipeline()
                                 .addLast("splitter", new JyCodecSplitter())
                                 .addLast("codec", new JyCodecHandler())
                                 .addLast("handler", new SimpleChannelInboundHandler<Packet>() {
                                     @Override
-                                    protected void channelRead0(ChannelHandlerContext ctx, Packet msg) throws Exception {
+                                    protected void channelRead0(ChannelHandlerContext ctx, Packet msg) {
                                         dispatcher.dispatch(ctx, msg);
                                     }
                                 });

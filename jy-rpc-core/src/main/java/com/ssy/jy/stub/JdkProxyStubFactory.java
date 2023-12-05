@@ -13,6 +13,7 @@ import java.lang.reflect.Proxy;
 public class JdkProxyStubFactory implements StubFactory {
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> T getStub(Class<T> clazz, RpcRuntime runtime) {
         ProxyStub proxy = new ProxyStub(clazz, runtime);
         return (T) Proxy.newProxyInstance(clazz.getClassLoader(), new Class[]{clazz}, proxy);

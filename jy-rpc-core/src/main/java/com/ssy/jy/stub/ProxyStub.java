@@ -18,11 +18,11 @@ import java.lang.reflect.Method;
 public class ProxyStub implements InvocationHandler, Stub {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxyStub.class);
     private RpcRuntime runtime;
-    private Class proxyInterface;
+    private final Class<?> proxyInterface;
 
     private Object ref;
 
-    public ProxyStub(Class proxyInterface, RpcRuntime runtime) {
+    public ProxyStub(Class<?> proxyInterface, RpcRuntime runtime) {
         this.proxyInterface = proxyInterface;
         this.runtime = runtime;
         runtime.register(this);
@@ -63,7 +63,7 @@ public class ProxyStub implements InvocationHandler, Stub {
     }
 
     @Override
-    public Class type() {
+    public Class<?> type() {
         return proxyInterface;
     }
 

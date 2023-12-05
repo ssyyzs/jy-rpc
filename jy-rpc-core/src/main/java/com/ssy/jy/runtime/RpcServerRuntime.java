@@ -27,12 +27,12 @@ import java.util.Map;
 public class RpcServerRuntime implements RpcRuntime, PacketListener<RpcRequestPacket> {
     private static final Logger LOGGER = LoggerFactory.getLogger(RpcServerRuntime.class);
 
-    private Map<Class, Stub> stubMap = new HashMap<>();
+    private final Map<Class<?>, Stub> stubMap = new HashMap<>();
 
     private final ServerBootstrap bootstrap = new ServerBootstrap();
     private final PacketDispatcher dispatcher = new PacketDispatcher();
     private Channel serverChannel;
-    private SocketAddress address;
+    private final SocketAddress address;
 
     public RpcServerRuntime(InetSocketAddress address) {
         this.address = address;
@@ -102,11 +102,5 @@ public class RpcServerRuntime implements RpcRuntime, PacketListener<RpcRequestPa
         } finally {
             ctx.channel().writeAndFlush(response);
         }
-    }
-
-    public void registerService(Class clazz, Object ref) {
-        Stub serverStub = new ServerStub(clazz, this);
-        serverStub.setRef(ref);
-        stubMap.put(serverStub.type(), serverStub);
     }
 }

@@ -14,12 +14,12 @@ import java.lang.reflect.Method;
  */
 public class ServerStub implements Stub {
 
-    private Class interfaceType;
+    private final Class<?> interfaceType;
     private RpcRuntime runtime;
 
     private Object ref;
 
-    public ServerStub(Class interfaceType, RpcRuntime runtime) {
+    public ServerStub(Class<?> interfaceType, RpcRuntime runtime) {
         this.interfaceType = interfaceType;
         this.runtime = runtime;
         runtime.register(this);
@@ -46,7 +46,7 @@ public class ServerStub implements Stub {
     }
 
     @Override
-    public Class type() {
+    public Class<?> type() {
         return interfaceType;
     }
 
