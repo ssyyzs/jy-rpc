@@ -2,10 +2,8 @@ package com.ssy.jy.config;
 
 import lombok.Data;
 
-import java.util.Map;
-
 /**
- * created by idea.
+ * runtime 配置类.
  *
  * @author ssyyzs
  * @since 2023-12-04

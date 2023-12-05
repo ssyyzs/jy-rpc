@@ -5,12 +5,10 @@ import com.ssy.jy.runtime.RpcClientRuntime;
 import com.ssy.jy.runtime.RpcRuntime;
 import com.ssy.jy.runtime.RpcServerRuntime;
 import com.ssy.jy.stub.JdkProxyStubFactory;
-import com.ssy.jy.stub.ProxyStub;
 import com.ssy.jy.stub.ServerStub;
 import com.ssy.jy.stub.Stub;
 import lombok.Getter;
 
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
@@ -25,8 +23,8 @@ import java.util.function.Supplier;
  * @since 2023-12-05
  */
 public class RpcContext {
-    private Map<Class, Supplier> referenceFactory = new HashMap<>();
-    private Map<Class, Supplier> serviceFactory = new HashMap<>();
+    private final Map<Class<?>, Supplier<?>> referenceFactory = new HashMap<>();
+    private final Map<Class<?>, Supplier<?>> serviceFactory = new HashMap<>();
     @Getter
     private ConfigContext configContext;
     private String configFileName = "jy.yaml";
@@ -43,37 +41,38 @@ public class RpcContext {
     private void init() {
         this.configContext = ConfigContext.parse(getResourceAsStream(configFileName));
         RuntimeConfig serverConfig = this.configContext.getServer();
-        RpcServerRuntime serverRuntime = new RpcServerRuntime(new InetSocketAddress(serverConfig.getHostName(), serverConfig.getPort()));
+        RpcRuntime serverRuntime = new RpcServerRuntime(new InetSocketAddress(serverConfig.getHostName(), serverConfig.getPort()));
         createStub(serverConfig.getStub().getServices(), serverRuntime);
         RuntimeConfig clientConfig = this.configContext.getClient();
-        RpcClientRuntime clientRuntime = new RpcClientRuntime(new InetSocketAddress(clientConfig.getHostName(), clientConfig.getPort()));
+        RpcRuntime clientRuntime = new RpcClientRuntime(new InetSocketAddress(clientConfig.getHostName(), clientConfig.getPort()));
         createStub(clientConfig.getStub().getServices(), clientRuntime);
     }
 
     private void createStub(Map<String, String> service, RpcRuntime runtime) {
-        try {
-            for (Map.Entry<String, String> entry : service.entrySet()) {
-                Class interfaceType = Class.forName(entry.getKey());
-                String implType = entry.getValue();
-                if ("proxy".equals(implType)) {
-                    Supplier supplier = () -> JdkProxyStubFactory.DEFAULT_FACTORY.getStub(interfaceType, runtime);
-                    referenceFactory.put(interfaceType, cacheableWrapper(supplier));
-                } else {
-                    Class implClassType = Class.forName(implType);
-                    Object ref = implClassType.getConstructors()[0].newInstance();
+        for (Map.Entry<String, String> entry : service.entrySet()) {
+            Class<?> interfaceType;
+            try {
+                interfaceType = Class.forName(entry.getKey());
+            } catch (ClassNotFoundException e) {
+                throw new RpcException(String.format("interfaceType %s not existed.", entry.getKey()));
+            }
+            String serviceClassType = entry.getValue();
+            if ("proxy".equals(serviceClassType)) {
+                referenceFactory.put(interfaceType, singleWrapper(() -> JdkProxyStubFactory.DEFAULT_FACTORY.getStub(interfaceType, runtime)));
+            } else {
+                Class<?> serviceClass;
+                try {
+                    serviceClass = Class.forName(serviceClassType);
+                    Object ref = serviceClass.getConstructors()[0].newInstance();
                     Stub serverStub = new ServerStub(interfaceType, runtime);
                     serverStub.setRef(ref);
-                    serviceFactory.put(interfaceType, cacheableWrapper(() -> ref));
+                    serviceFactory.put(interfaceType, () -> ref);
+                } catch (ClassNotFoundException e) {
+                    throw new RpcException(String.format("serviceClass %s not existed.", serviceClassType));
+                } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                    throw new RpcException(String.format("Make sure service %s no args constructors existed.", serviceClassType));
                 }
             }
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
-        } catch (InstantiationException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -88,15 +87,32 @@ public class RpcContext {
         throw new RpcException(String.format("config file is not existed. %s", configFileName));
     }
 
+
+    @SuppressWarnings("unchecked")
     public <T> T getReference(Class<T> clazz) {
         return (T) referenceFactory.get(clazz).get();
     }
 
+    /**
+     * 获取可提供的服务.
+     *
+     * @param clazz 接口类型
+     * @param <T>   接口实现
+     * @return T 接口实现
+     */
+    @SuppressWarnings("unchecked")
     public <T> T getService(Class<T> clazz) {
         return (T) serviceFactory.get(clazz).get();
     }
 
-    public <T> Supplier<T> cacheableWrapper(Supplier<T> supplier) {
+    /**
+     * 返回单例实现.
+     *
+     * @param supplier 提供接口
+     * @param <T>      提供的类型
+     * @return Supplier<T>  单例实现的提供接口
+     */
+    public <T> Supplier<T> singleWrapper(Supplier<T> supplier) {
         return new Supplier<>() {
             private volatile T ref;
 
