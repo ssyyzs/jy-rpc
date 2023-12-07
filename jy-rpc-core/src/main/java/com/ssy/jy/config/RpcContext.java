@@ -4,9 +4,13 @@ import com.ssy.jy.exception.RpcException;
 import com.ssy.jy.runtime.RpcClientRuntime;
 import com.ssy.jy.runtime.RpcRuntime;
 import com.ssy.jy.runtime.RpcServerRuntime;
+import com.ssy.jy.spi.SpiLoader;
+import com.ssy.jy.spi.SpiMeta;
 import com.ssy.jy.stub.JdkProxyStubFactory;
 import com.ssy.jy.stub.ServerStub;
 import com.ssy.jy.stub.Stub;
+import com.ssy.jy.stub.StubFactory;
+import com.ssy.jy.tools.FunctionWrapper;
 import lombok.Getter;
 
 import java.io.InputStream;
@@ -14,6 +18,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
@@ -28,6 +33,7 @@ public class RpcContext {
     @Getter
     private ConfigContext configContext;
     private String configFileName = "jy.yaml";
+    private StubFactory stubFactory;
 
     public RpcContext() {
         init();
@@ -40,6 +46,11 @@ public class RpcContext {
 
     private void init() {
         this.configContext = ConfigContext.parse(getResourceAsStream(configFileName));
+        Optional<StubFactory> load = SpiLoader.load(StubFactory.class, SpiMeta.DEFAULT);
+        if (load.isEmpty()) {
+            throw new RpcException(String.format("can't not load {} StubFactory by spi.", SpiMeta.DEFAULT));
+        }
+        this.stubFactory = load.get();
         RuntimeConfig serverConfig = this.configContext.getServer();
         RpcRuntime serverRuntime = new RpcServerRuntime(new InetSocketAddress(serverConfig.getHostName(), serverConfig.getPort()));
         createStub(serverConfig.getStub().getServices(), serverRuntime);
@@ -58,7 +69,7 @@ public class RpcContext {
             }
             String serviceClassType = entry.getValue();
             if ("proxy".equals(serviceClassType)) {
-                referenceFactory.put(interfaceType, singleWrapper(() -> JdkProxyStubFactory.DEFAULT_FACTORY.getStub(interfaceType, runtime)));
+                referenceFactory.put(interfaceType, FunctionWrapper.singleWrapper(() -> stubFactory.getStub(interfaceType, runtime)));
             } else {
                 Class<?> serviceClass;
                 try {
@@ -103,30 +114,5 @@ public class RpcContext {
     @SuppressWarnings("unchecked")
     public <T> T getService(Class<T> clazz) {
         return (T) serviceFactory.get(clazz).get();
-    }
-
-    /**
-     * 返回单例实现.
-     *
-     * @param supplier 提供接口
-     * @param <T>      提供的类型
-     * @return Supplier<T>  单例实现的提供接口
-     */
-    public <T> Supplier<T> singleWrapper(Supplier<T> supplier) {
-        return new Supplier<>() {
-            private volatile T ref;
-
-            @Override
-            public T get() {
-                if (ref == null) {
-                    synchronized (this) {
-                        if (ref == null) {
-                            ref = supplier.get();
-                        }
-                    }
-                }
-                return ref;
-            }
-        };
     }
 }

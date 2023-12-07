@@ -1,6 +1,7 @@
 package com.ssy.jy.stub;
 
 import com.ssy.jy.runtime.RpcRuntime;
+import com.ssy.jy.spi.SpiMeta;
 
 import java.lang.reflect.Proxy;
 
@@ -10,6 +11,7 @@ import java.lang.reflect.Proxy;
  * @author ssyyzs
  * @since 2023-11-29
  */
+@SpiMeta
 public class JdkProxyStubFactory implements StubFactory {
 
     @Override

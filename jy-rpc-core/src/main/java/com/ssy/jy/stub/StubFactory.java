@@ -9,8 +9,6 @@ import com.ssy.jy.runtime.RpcRuntime;
  * @since 2023-11-29
  */
 public interface StubFactory {
-    StubFactory DEFAULT_FACTORY = new JdkProxyStubFactory();
-    
     /**
      * 获取rpc代理对象.
      *
