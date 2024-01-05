@@ -9,8 +9,8 @@
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
-        <module>jy-rpc-client</module>
-        <module>jy-rpc-transport</module>
+        <module>jy-rpc-core</module>
+        <module>jy-rpc-example</module>
     </modules>
 
     <properties>
@@ -52,6 +52,11 @@
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-core</artifactId>
                 <version>1.3.5</version>
+            </dependency>
+            <dependency>
+                <groupId>org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>2.1</version>
             </dependency>
             <dependency>
                 <groupId>org.junit.jupiter</groupId>

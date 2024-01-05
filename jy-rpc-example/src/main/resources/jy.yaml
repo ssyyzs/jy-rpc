@@ -1,0 +1,12 @@
+!!com.ssy.jy.config.ConfigContext
+client:
+  hostName: 127.0.0.1
+  port: 3000
+  stub:
+    services:
+      com.ssy.jy.biz.RpcTest: proxy
+server:
+  port: 3000
+  stub:
+    services:
+      com.ssy.jy.biz.RpcTest: com.ssy.jy.biz.RpcTestImpl
