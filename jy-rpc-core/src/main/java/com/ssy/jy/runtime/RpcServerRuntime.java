@@ -64,7 +64,7 @@ public class RpcServerRuntime implements RpcRuntime, PacketListener<RpcRequestPa
                 .childOption(ChannelOption.TCP_NODELAY, true)
                 .childOption(ChannelOption.SO_KEEPALIVE, true)
                 .bind(address).syncUninterruptibly().channel();
-        LOGGER.info("netty server runtime started on: {}", serverChannel);
+        LOGGER.debug("netty server runtime started on: {}", serverChannel);
     }
 
     @Override

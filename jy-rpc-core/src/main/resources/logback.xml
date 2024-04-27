@@ -3,7 +3,7 @@
 <configuration>
     <property value="UTF-8" name="CHARSET"/>
     <property
-            value="[%d{yyyy-MM-dd HH:mm:ss.SSSZ}][%-5level][%thread][%c] - [%replace(%msg){'0x[a-f0-9]{15,}|0x0|[sS]ession[iI][dD]\\s?=\\s?[0-9]{4,}', 0x***}] %replace(%ex){'0x[a-f0-9]{15,}|0x0|[sS]ession[iI][dD]\\s?=\\s?[0-9]{4,}', 0x***} %n"
+            value="[%d{yyyy-MM-dd HH:mm:ss.SSSZ}][%-5level][%thread][%c]: %replace(%msg){'0x[a-f0-9]{15,}|0x0|[sS]ession[iI][dD]\\s?=\\s?[0-9]{4,}', 0x***} %replace(%ex){'0x[a-f0-9]{15,}|0x0|[sS]ession[iI][dD]\\s?=\\s?[0-9]{4,}', 0x***} %n"
             name="LOG_PATTERN"/>
     <contextName>logback-test</contextName>
 
@@ -15,7 +15,7 @@
         </encoder>
     </appender>
     　　　　　　
-    <logger name="com.ssy.jy" additivity="true" level="info"/>
+    <logger name="com.ssy.jy" additivity="true" level="debug"/>
     <root level="${jy.log.level:-INFO}">
         <appender-ref ref="STDOUT"/>
     </root>

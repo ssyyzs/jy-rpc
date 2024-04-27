@@ -15,7 +15,7 @@ import java.util.function.Supplier;
  */
 public class SpiLoader {
     private static final Logger LOGGER = LoggerFactory.getLogger(SpiLoader.class);
-    private static ConcurrentHashMap<Class<?>, List<?>> loadServices = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<Class<?>, List<?>> LOAD_SERVICES = new ConcurrentHashMap<>();
 
     public static <T> Optional<T> load(Class<T> clazz) {
         return load(clazz, SpiMeta.DEFAULT);
@@ -23,7 +23,7 @@ public class SpiLoader {
 
     @SuppressWarnings("unchecked")
     public static <T> Optional<T> load(Class<T> clazz, String alias) {
-        List<?> list = loadServices.computeIfAbsent(clazz, aClass -> new ServiceSupplier<>(aClass).get());
+        List<?> list = LOAD_SERVICES.computeIfAbsent(clazz, aClass -> new ServiceSupplier<>(aClass).get());
         if (list == null || list.isEmpty()) {
             return Optional.empty();
         }
@@ -45,7 +45,7 @@ public class SpiLoader {
             List<T> res = new ArrayList<>();
             while (iterator.hasNext()) {
                 T service = iterator.next();
-                LOGGER.debug("load spi service[{} = {}]", clazz.getName(), service.getClass().getName());
+                LOGGER.debug("load service {}.", service.getClass().getName());
                 res.add(service);
             }
             return res;
