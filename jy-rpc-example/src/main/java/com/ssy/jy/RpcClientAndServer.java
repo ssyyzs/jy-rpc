@@ -2,6 +2,8 @@ package com.ssy.jy;
 
 import com.ssy.jy.biz.RpcTest;
 import com.ssy.jy.config.RpcContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -19,10 +21,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @since 2023-12-05
  */
 public class RpcClientAndServer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RpcClientAndServer.class);
     public static void main(String[] args) {
         RpcContext context = new RpcContext("jy.yaml");
         RpcTest reference = context.getReference(RpcTest.class);
-        int threadSize = args.length > 0 ? threadSize = Integer.parseInt(args[0]) : 8;
+        int threadSize = args.length > 0 ? Integer.parseInt(args[0]) : 8;
         final int requestPerSecond = args.length > 1 ? Integer.parseInt(args[1]) : 30000;
         int strLen = args.length > 2 ? Math.max(8, Integer.parseInt(args[2])) : 1024;
         String testStr = buildStr(strLen);
@@ -46,7 +49,7 @@ public class RpcClientAndServer {
             int pre = 0;
             while (true) {
                 int cur = data.get();
-                System.err.println(LocalDateTime.now() + ": " + (cur - pre) + "/s");
+                LOGGER.info("tps {}/s", cur - pre);
                 pre = cur;
                 try {
                     Thread.sleep(1000);

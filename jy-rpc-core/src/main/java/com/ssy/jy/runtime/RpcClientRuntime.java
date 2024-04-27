@@ -65,7 +65,7 @@ public class RpcClientRuntime implements RpcRuntime, PacketListener<RpcResponseP
                     }
                 });
         clientChannel = bootstrap.connect(address).syncUninterruptibly().channel();
-        LOGGER.info("netty client runtime started on: {}", clientChannel);
+        LOGGER.debug("netty client runtime started on: {}", clientChannel);
     }
 
     @Override
@@ -88,7 +88,6 @@ public class RpcClientRuntime implements RpcRuntime, PacketListener<RpcResponseP
 
     @Override
     public void handle(ChannelHandlerContext ctx, RpcResponsePacket response) {
-        LOGGER.debug("received response {}.", response);
         if (response.isSuccess()) {
             RpcRequestManagement.success(response.getRequestId(), response.getData());
         } else {

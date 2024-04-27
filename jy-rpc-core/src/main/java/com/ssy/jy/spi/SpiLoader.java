@@ -45,7 +45,7 @@ public class SpiLoader {
             List<T> res = new ArrayList<>();
             while (iterator.hasNext()) {
                 T service = iterator.next();
-                LOGGER.debug("load spi service[{} = {}]", clazz.getName(), service.getClass().getName());
+                LOGGER.debug("load service {}.", service.getClass().getName());
                 res.add(service);
             }
             return res;
